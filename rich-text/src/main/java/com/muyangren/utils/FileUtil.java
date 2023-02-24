@@ -21,7 +21,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
  * @Description: com.muyangren.utils
  * @Version: 1.0
  */
-public interface FileUtil {
+public class FileUtil {
     /**
      * 创建FileItem
      * @param file

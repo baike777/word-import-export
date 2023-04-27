@@ -15,6 +15,7 @@ import org.springframework.core.io.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -73,12 +74,10 @@ class ExportWord {
         config.customPolicy("richText2", htmlRenderPolicy);
         config.customPolicy("richText3", htmlRenderPolicy);
 
-        //5、获取resource下的模板
-        Resource resource = new ClassPathResource("templates" + File.separator + "牧羊人导出模板.docx");
         //临时路径，实际项目里不需要
         String filePath = FileUtil.getProjectPath() + "document" + File.separator + "牧羊人导出实例.docx";
         //动态导出
-        dynamicExport(data, new File(filePath), resource, config, null, false);
+        dynamicExportWord(data, new File(filePath), new ClassPathResource("templates" + File.separator + "牧羊人导出模板.docx"), config, null, false);
     }
 
     private String dealWithPictureWidthAndHeight(String content) {
@@ -117,17 +116,18 @@ class ExportWord {
      * @param response  通过浏览器下载需要
      * @param isBrowser true-通过浏览器下载  false-下载到临时路径
      */
-    public void dynamicExport(Map<String, Object> data, File filePath, Resource resource, Configure config, HttpServletResponse response, boolean isBrowser) throws IOException {
+    public void dynamicExportWord(Map<String, Object> data, File filePath, Resource resource, Configure config, HttpServletResponse response, boolean isBrowser) throws IOException {
+        XWPFTemplate render = XWPFTemplate.compile(resource.getInputStream(), config).render(data);
         if (Boolean.FALSE.equals(isBrowser)) {
             File parentFile = filePath.getParentFile();
             if (!parentFile.exists()) {
                 parentFile.mkdirs();
             }
             FileOutputStream out = new FileOutputStream(filePath);
-            XWPFTemplate.compile(resource.getInputStream(), config).render(data).writeAndClose(out);
+            render.writeAndClose(out);
         } else {
             ServletOutputStream out = response.getOutputStream();
-            XWPFTemplate.compile(resource.getInputStream(), config).render(data).writeAndClose(out);
+            render.writeAndClose(out);
         }
     }
 }

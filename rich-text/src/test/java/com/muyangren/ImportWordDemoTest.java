@@ -15,36 +15,32 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class ImportWord {
+/**
+ * 导入word文档，获取文档中的富文本信息以及非富文本信息
+ */
+class ImportWordDemoTest {
 
-    /**
-     * 导入模板，获取富文本信息以及非富文本信息
-     */
     @Test
     void importWord() throws IOException {
         Templates templates = new Templates();
-        //1、获取文件路径
-        //实际情况中，该MultipartFile 是Controller层获取的(如语雀所示)
-        File file = new ClassPathResource("templates" + File.separator + "牧羊人导入模板.docx").getFile();
+        // 1、获取文件路径 实际情况中，该MultipartFile 是Controller层获取的
+        File file = new ClassPathResource("templates" + File.separator + "importWordTemplate.docx").getFile();
         MultipartFile fileItem = FileUtil.createFileItem(file,file.toString());
-        //2、处理非富文本信息
+        // 2、处理非富文本信息
         List<Map<String, String>> mapList = WordUtil.readWord(fileItem);
-        //3、下载文件到临时路径下
+        // 3、下载文件到临时路径下
         File destFile = FileUtil.fileDownloadToLocalPath(fileItem);
-        //4、处理富文本信息(含图片),并且定义一个实体类接收
+        // 4、处理富文本信息(含图片),并且定义一个实体类接收
         dealWithTemplatesRichText(templates,destFile);
-        //5、替换案例富文本信息中的图片(如果有)路径并删除临时文件和临时图片
+        // 5、替换案例富文本信息中的图片(如果有)路径并删除临时文件和临时图片
         dealWithTemplatesRichTextToPicture(templates);
-        //6、最后调用方法保存templates即可
+        // 6、最后调用方法保存templates即可
     }
 
     private void dealWithTemplatesRichTextToPicture(Templates templates) {
@@ -66,11 +62,11 @@ class ImportWord {
             String content = dealWithTemplatesRichTextToPictureChild(richTextThree, "ossBuilder", files);
             templates.setRichTextThree(content);
         }
-        if (files.size() > 0) {
-            for (File file : files) {
+        if (!files.isEmpty()) {
+            //for (File file : files) {
                 //自行删除
                 //FileUtil.deleteQuietly(file);
-            }
+            //}
         }
     }
 
@@ -136,6 +132,5 @@ class ImportWord {
                 }
             }
         }
-
     }
 }

@@ -31,16 +31,14 @@ public class FileUtil {
     public static MultipartFile createFileItem(File file, String fieldName) {
         FileItemFactory factory = new DiskFileItemFactory(16, null);
         FileItem item = factory.createItem(fieldName, ContentType.MULTIPART_FORM_DATA.toString(), true, file.getName());
-        int bytesRead = 0;
+        int bytesRead;
         byte[] buffer = new byte[8192];
-        try {
-            FileInputStream fis = new FileInputStream(file);
+        try (FileInputStream fis = new FileInputStream(file)){
             OutputStream os = item.getOutputStream();
             while ((bytesRead = fis.read(buffer, 0, 8192)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
             os.close();
-            fis.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
